@@ -50,6 +50,7 @@
 #include "DolphinWX/TASInputDlg.h"
 #include "DolphinWX/WxUtils.h"
 #include "DolphinWX/Debugger/CodeWindow.h"
+#include "DolphinWX/LuaWindow.h"
 
 #include "InputCommon/GCPadStatus.h"
 
@@ -277,6 +278,7 @@ EVT_MENU(IDM_MEMCARD, CFrame::OnMemcard)
 EVT_MENU(IDM_IMPORT_SAVE, CFrame::OnImportSave)
 EVT_MENU(IDM_EXPORT_ALL_SAVE, CFrame::OnExportAllSaves)
 EVT_MENU(IDM_CHEATS, CFrame::OnShowCheatsWindow)
+EVT_MENU(IDM_LUA, CFrame::OnLua)
 EVT_MENU(IDM_CHANGE_DISC, CFrame::OnChangeDisc)
 EVT_MENU(IDM_MENU_INSTALL_WAD, CFrame::OnInstallWAD)
 EVT_MENU(IDM_LIST_INSTALL_WAD, CFrame::OnInstallWAD)
@@ -364,7 +366,7 @@ CFrame::CFrame(wxFrame* parent,
 		bool ShowLogWindow,
 		long style)
 	: CRenderFrame(parent, id, title, pos, size, style)
-	, g_pCodeWindow(nullptr), g_NetPlaySetupDiag(nullptr), g_CheatsWindow(nullptr)
+	, g_pCodeWindow(nullptr), g_NetPlaySetupDiag(nullptr), g_CheatsWindow(nullptr), g_LuaWindow(nullptr)
 	, m_SavedPerspectives(nullptr), m_ToolBar(nullptr)
 	, m_GameListCtrl(nullptr), m_Panel(nullptr)
 	, m_RenderFrame(nullptr), m_RenderParent(nullptr)

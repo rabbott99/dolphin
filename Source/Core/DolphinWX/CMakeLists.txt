@@ -2,6 +2,7 @@ set(GUI_SRCS
 	ARCodeAddEdit.cpp
 	AboutDolphin.cpp
 	ControllerConfigDiag.cpp
+	LuaWindow.cpp
 	Cheats/CheatSearchTab.cpp
 	Cheats/CheatsWindow.cpp
 	Cheats/CreateCodeDialog.cpp
@@ -71,7 +72,7 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES FreeBSD)
 	set(WXLIBS ${WXLIBS} dl)
 endif()
 
-list(APPEND LIBS core uicommon)
+list(APPEND LIBS core uicommon lua)
 
 if(APPLE)
 	if(wxWidgets_FOUND)

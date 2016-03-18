@@ -16,8 +16,10 @@
 // http://code.google.com/p/dolphin-emu/
 
 #include "LuaWindow.h"
-#include "LuaInterface.h"
-#include "../../Core/Src/CoreTiming.h"
+#include "Core/LuaInterface.h"
+#include "Core/CoreTiming.h"
+#include "DolphinWX/Frame.h"
+#include "DolphinWX/Main.h"
 
 #include <map>
 
@@ -85,6 +87,8 @@ wxLuaWindow::~wxLuaWindow()
 	// On Disposal
 	CoreTiming::ScheduleEvent_Threadsafe_Immediate(ev_LuaClose, luaID);
 	g_contextMap.erase(luaID);
+
+	main_frame->g_LuaWindow = nullptr;
 }
 
 void wxLuaWindow::PrintMessage(const char *text)

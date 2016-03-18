@@ -64,6 +64,7 @@
 #include "DolphinWX/LogWindow.h"
 #include "DolphinWX/MemcardManager.h"
 #include "DolphinWX/TASInputDlg.h"
+#include "DolphinWX/LuaWindow.h"
 #include "DolphinWX/WXInputBase.h"
 #include "DolphinWX/WxUtils.h"
 #include "DolphinWX/Cheats/CheatsWindow.h"
@@ -235,6 +236,7 @@ wxMenuBar* CFrame::CreateMenu()
 	toolsMenu->Append(IDM_IMPORT_SAVE, _("Import Wii Save"));
 	toolsMenu->Append(IDM_EXPORT_ALL_SAVE, _("Export All Wii Saves"));
 	toolsMenu->Append(IDM_CHEATS, _("&Cheat Manager"));
+	toolsMenu->Append(IDM_LUA, _("&Lua Scripts"));
 
 	toolsMenu->Append(IDM_NETPLAY, _("Start &NetPlay"));
 
@@ -1461,6 +1463,14 @@ void CFrame::OnShowCheatsWindow(wxCommandEvent& WXUNUSED (event))
 		g_CheatsWindow = new wxCheatsWindow(this);
 	else
 		g_CheatsWindow->Raise();
+}
+
+void CFrame::OnLua(wxCommandEvent& WXUNUSED (event))
+{
+	if (!g_LuaWindow)
+		g_LuaWindow = new wxLuaWindow(this);
+	else
+		g_LuaWindow->Raise();
 }
 
 void CFrame::OnLoadWiiMenu(wxCommandEvent& WXUNUSED(event))

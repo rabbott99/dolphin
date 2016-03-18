@@ -33,6 +33,7 @@ class LogConfigWindow;
 class NetPlaySetupFrame;
 class TASInputDlg;
 class wxCheatsWindow;
+class wxLuaWindow;
 
 class wxAuiManager;
 class wxAuiManagerEvent;
@@ -92,6 +93,7 @@ public:
 	NetPlaySetupFrame* g_NetPlaySetupDiag;
 	wxCheatsWindow* g_CheatsWindow;
 	TASInputDlg* g_TASInputDlg[8];
+	wxLuaWindow* g_LuaWindow;
 
 	void InitBitmaps();
 	void DoPause();
@@ -323,6 +325,7 @@ private:
 	void OnNetPlay(wxCommandEvent& event);
 
 	void OnShowCheatsWindow(wxCommandEvent& event);
+	void OnLua(wxCommandEvent& event);
 	void OnLoadWiiMenu(wxCommandEvent& event);
 	void OnInstallWAD(wxCommandEvent& event);
 	void OnFifoPlayer(wxCommandEvent& event);

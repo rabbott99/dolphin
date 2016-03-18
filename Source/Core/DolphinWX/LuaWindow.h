@@ -31,8 +31,8 @@
 #include <wx/listbox.h>
 #include <string>
 
-#include "Filesystem.h"
-#include "IniFile.h"
+#include "DiscIO/Filesystem.h"
+#include "Common/IniFile.h"
 
 class wxLuaWindow : public wxFrame
 {
