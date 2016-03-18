@@ -46,7 +46,7 @@ namespace Movie {
 static bool s_bFrameStep = false;
 static bool s_bFrameStop = false;
 static bool s_bReadOnly = true;
-static u32 s_rerecords = 0;
+u32 g_rerecords = 0;
 static PlayMode s_playMode = MODE_NONE;
 
 static u32 s_framesToSkip = 0, s_frameSkipCounter = 0;
@@ -83,7 +83,7 @@ static u32 s_DSPcoefHash = 0;
 static u8 s_language = 10; //Set to unknown until language is known
 
 static bool s_bRecordingFromSaveState = false;
-static bool s_bPolled = false;
+bool g_bPolled = false;
 
 static std::string s_InputDisplay[8];
 
@@ -146,7 +146,7 @@ void FrameUpdate()
 	// TODO[comex]: This runs on the GPU thread, yet it messes with the CPU
 	// state directly.  That's super sketchy.
 	g_currentFrame++;
-	if (!s_bPolled)
+	if (!g_bPolled)
 		g_currentLagCount++;
 
 	if (IsRecordingInput())
@@ -168,14 +168,14 @@ void FrameUpdate()
 	if (s_framesToSkip)
 		FrameSkipping();
 
-	s_bPolled = false;
+	g_bPolled = false;
 }
 
 // called when game is booting up, even if no movie is active,
 // but potentially after BeginRecordingInput or PlayInput has been called.
 void Init()
 {
-	s_bPolled = false;
+	g_bPolled = false;
 	s_bFrameStep = false;
 	s_bFrameStop = false;
 	s_bSaveConfig = false;
@@ -211,7 +211,7 @@ void Init()
 	if (!IsMovieActive())
 	{
 		s_bRecordingFromSaveState = false;
-		s_rerecords = 0;
+		g_rerecords = 0;
 		s_currentByte = 0;
 		g_currentFrame = 0;
 		g_currentLagCount = 0;
@@ -245,7 +245,7 @@ void SetFrameSkipping(unsigned int framesToSkip)
 
 void SetPolledDevice()
 {
-	s_bPolled = true;
+	g_bPolled = true;
 }
 
 void DoFrameStep()
@@ -474,7 +474,7 @@ bool BeginRecordingInput(int controllers)
 		s_recordingStartTime = Common::Timer::GetLocalTimeSinceJan1970();
 	}
 
-	s_rerecords = 0;
+	g_rerecords = 0;
 
 	for (int i = 0; i < MAX_SI_CHANNELS; ++i)
 		if (SConfig::GetInstance().m_SIDevice[i] == SIDEVICE_GC_TARUKONGA)
@@ -798,8 +798,8 @@ void ReadHeader()
 {
 	s_numPads = tmpHeader.numControllers;
 	s_recordingStartTime = tmpHeader.recordingStartTime;
-	if (s_rerecords < tmpHeader.numRerecords)
-		s_rerecords = tmpHeader.numRerecords;
+	if (g_rerecords < tmpHeader.numRerecords)
+		g_rerecords = tmpHeader.numRerecords;
 
 	if (tmpHeader.bSaveConfig)
 	{
@@ -897,7 +897,7 @@ void DoState(PointerWrap &p)
 	p.Do(s_currentByte);
 	p.Do(g_currentLagCount);
 	p.Do(g_currentInputCount);
-	p.Do(s_bPolled);
+	p.Do(g_bPolled);
 	p.Do(s_tickCountAtLastInput);
 	// other variables (such as s_totalBytes and g_totalFrames) are set in LoadInput
 }
@@ -923,8 +923,8 @@ void LoadInput(const std::string& filename)
 	ReadHeader();
 	if (!s_bReadOnly)
 	{
-		s_rerecords++;
-		tmpHeader.numRerecords = s_rerecords;
+		g_rerecords++;
+		tmpHeader.numRerecords = g_rerecords;
 		t_record.Seek(0, SEEK_SET);
 		t_record.WriteArray(&tmpHeader, 1);
 	}
@@ -1198,7 +1198,7 @@ void EndPlayInput(bool cont)
 	}
 	else if (s_playMode != MODE_NONE)
 	{
-		s_rerecords = 0;
+		g_rerecords = 0;
 		s_currentByte = 0;
 		s_playMode = MODE_NONE;
 		Core::UpdateWantDeterminism();
@@ -1230,7 +1230,7 @@ void SaveRecording(const std::string& filename)
 	header.frameCount = g_totalFrames;
 	header.lagCount = s_totalLagCount;
 	header.inputCount = g_totalInputCount;
-	header.numRerecords = s_rerecords;
+	header.numRerecords = g_rerecords;
 	header.recordingStartTime = s_recordingStartTime;
 
 	header.bSaveConfig = true;

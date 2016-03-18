@@ -52,10 +52,12 @@ static_assert(sizeof(ControllerState) == 8, "ControllerState should be 8 bytes")
 // Global declarations
 extern bool g_bDiscChange, g_bClearSave, g_bReset;
 extern u64 g_titleID;
+extern bool g_bPolled;
 
 extern u64 g_currentFrame, g_totalFrames;
 extern u64 g_currentLagCount;
 extern u64 g_currentInputCount, g_totalInputCount;
+extern u32 g_rerecords;
 extern std::string g_discChange;
 
 #pragma pack(push,1)

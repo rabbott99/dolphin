@@ -61,6 +61,7 @@ void UndoLoadState();
 
 // wait until previously scheduled savestate event (if any) is done
 void Flush();
+size_t GetSize();
 
 // for calling back into UI code without introducing a dependency on it in core
 typedef void(*CallbackFunc)(void);

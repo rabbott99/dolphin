@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="ActionReplay">
@@ -404,6 +404,12 @@
     </ClCompile>
     <ClCompile Include="HW\BBA-TAP\TAP_Win32.cpp">
       <Filter>HW %28Flipper/Hollywood%29\EXI - Expansion Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaInterface.cpp">
+      <Filter>Lua Interface</Filter>
+    </ClCompile>
+    <ClCompile Include="PowerPC\Interpreter\Interpreter.cpp">
+      <Filter>PowerPC\Interpreter</Filter>
     </ClCompile>
     <ClCompile Include="HW\Sram.cpp">
       <Filter>HW %28Flipper/Hollywood%29\EXI - Expansion Interface</Filter>
@@ -1008,6 +1014,12 @@
     </ClInclude>
     <ClInclude Include="HW\WiimoteEmu\Attachment\Attachment.h">
       <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu\Attachment</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaInterface.h">
+      <Filter>Lua Interface</Filter>
+    </ClInclude>
+    <ClInclude Include="PowerPC\Interpreter\Interpreter_Tables.h">
+      <Filter>PowerPC\Interpreter</Filter>
     </ClInclude>
     <ClInclude Include="HW\WiimoteEmu\Attachment\Classic.h">
       <Filter>HW %28Flipper/Hollywood%29\Wiimote\Emu\Attachment</Filter>

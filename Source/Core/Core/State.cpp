@@ -756,4 +756,13 @@ void UndoSaveState()
 	LoadAs(File::GetUserPath(D_STATESAVES_IDX) + "lastState.sav");
 }
 
+size_t GetSize()
+{
+	// Measure the size of the buffer.
+	u8 *ptr = 0;
+	PointerWrap p(&ptr, PointerWrap::MODE_MEASURE);
+	DoState(p);
+	return (size_t)ptr;
+}
+
 } // namespace State

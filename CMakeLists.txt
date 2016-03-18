@@ -617,6 +617,13 @@ if(USE_SHARED_ENET)
 		endif()
 	endif()
 endif()
+      
+# TODO: Try using the native lib first
+# To use the native lib for Lua the dolphin code will need to be changed.
+# Currently the file lstate.h is improperly included.
+add_subdirectory(Externals/Lua)
+include_directories(Externals/Lua)
+
 if (ENET_FOUND)
 	message("Using shared enet")
 else()
