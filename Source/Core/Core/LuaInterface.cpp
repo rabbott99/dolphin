@@ -38,12 +38,15 @@
 #include "VideoCommon/Fifo.h"
 #include "VideoCommon/VideoBackendBase.h"
 
+#define LUA_COMPAT_5_1
+
 extern "C" {
 #include "lua.h"
 #include "lauxlib.h"
 #include "lualib.h"
 #include "lstate.h"
 };
+
 
 // TODO Count: 7
 
@@ -611,7 +614,8 @@ DEFINE_LUA_FUNCTION(emulua_persistglobalvariables, "variabletable")
 			}
 
 			// set the global variable
-			lua_settable(L, LUA_GLOBALSINDEX);
+			//lua_settable(L, LUA_GLOBALSINDEX);
+			lua_pushglobaltable(L);
 
 			assert(lua_gettop(L) == keyIndex);
 		}
@@ -631,8 +635,8 @@ static void DeferFunctionCall(lua_State* L, const char* idstring)
 	int num = lua_gettop(L);
 
 	// get the C function pointer
-	//lua_CFunction cf = lua_tocfunction(L, -(num+1));
-	lua_CFunction cf = (L->ci->func)->value.gc->cl.c.f;
+	lua_CFunction cf = lua_tocfunction(L, -(num+1));
+	//lua_CFunction cf = (L->ci->func)->value_.gc->cl.c.f;
 	assert(cf);
 	lua_pushcfunction(L,cf);
 
@@ -766,7 +770,8 @@ static void toCStringConverter(lua_State* L, int i, char*& ptr, int& remaining)
 		case LUA_TSTRING: APPENDPRINT "%s", lua_tostring(L,i) END break;
 	case LUA_TNUMBER: APPENDPRINT "%.12Lg", (long double)lua_tonumber(L,i) END break;
 		case LUA_TFUNCTION: 
-			if((L->base + i-1)->value.gc->cl.c.isC)
+			//if((L->base + i-1)->value.gc->cl.c.isC)
+			if(lua_iscfunction(L, i))
 			{
 				lua_CFunction func = lua_tocfunction(L, i);
 				std::map<lua_CFunction, const char*>::iterator iter = s_cFuncInfoMap.find(func);
@@ -776,7 +781,8 @@ static void toCStringConverter(lua_State* L, int i, char*& ptr, int& remaining)
 			}
 			else
 			{
-				APPENDPRINT "function(" END 
+				goto defcase;
+				/*APPENDPRINT "function(" END
 				Proto* p = (L->base + i-1)->value.gc->cl.l.p;
 				int numParams = p->numparams + (p->is_vararg?1:0);
 				for (int n=0; n<p->numparams; n++)
@@ -787,7 +793,7 @@ static void toCStringConverter(lua_State* L, int i, char*& ptr, int& remaining)
 				}
 				if(p->is_vararg)
 					APPENDPRINT "..." END
-				APPENDPRINT ")" END
+				APPENDPRINT ")" END*/
 			}
 			break;
 defcase:default: APPENDPRINT "%s:%p",luaL_typename(L,i),lua_topointer(L,i) END break;
@@ -1007,7 +1013,8 @@ DEFINE_LUA_FUNCTION(copytable, "origtable")
 	}
 	if(origType != LUA_TTABLE)
 	{
-		luaL_typerror(L, 1, lua_typename(L, LUA_TTABLE));
+		//luaL_typerror(L, 1, lua_typename(L, LUA_TTABLE));
+		luaL_argerror(L, 1, "Expected table");
 		lua_pushnil(L);
 		return 1;
 	}
@@ -3071,7 +3078,7 @@ static int dontworry(LuaContextInfo& info)
 	return 0;
 }
 
-static const struct luaL_reg emulualib [] =
+static const struct luaL_Reg emulualib [] =
 {
 	{"frameadvance", emulua_frameadvance},
 //	{"speedmode", emulua_speedmode},
@@ -3100,7 +3107,7 @@ static const struct luaL_reg emulualib [] =
 	{"openrom", emulua_loadrom},
 	{NULL, NULL}
 };
-static const struct luaL_reg guilib [] =
+static const struct luaL_Reg guilib [] =
 {
 	{"register", gui_register},
 //	{"text", gui_text},
@@ -3129,7 +3136,7 @@ static const struct luaL_reg guilib [] =
 //	{"image", gui_gdoverlay},
 	{NULL, NULL}
 };
-static const struct luaL_reg statelib [] =
+static const struct luaL_Reg statelib [] =
 {
 	{"create", state_create},
 	{"save", state_save},
@@ -3141,7 +3148,7 @@ static const struct luaL_reg statelib [] =
 	{"registerload", state_registerload},
 	{NULL, NULL}
 };
-static const struct luaL_reg memorylib [] =
+static const struct luaL_Reg memorylib [] =
 {
 	{"readbyte", memory_readbyte},
 	{"readbytesigned", memory_readbytesigned},
@@ -3183,7 +3190,7 @@ static const struct luaL_reg memorylib [] =
 
 	{NULL, NULL}
 };
-static const struct luaL_reg joylib [] =
+static const struct luaL_Reg joylib [] =
 {
 	//{"get", joy_get},
 	//{"getdown", joy_getdown},
@@ -3199,7 +3206,7 @@ static const struct luaL_reg joylib [] =
 	//{"readup", joy_getup},
 	{NULL, NULL}
 };
-static const struct luaL_reg inputlib [] =
+static const struct luaL_Reg inputlib [] =
 {
 	{"get", input_getcurrentinputstatus},
 	{"registerhotkey", input_registerhotkey},
@@ -3208,7 +3215,7 @@ static const struct luaL_reg inputlib [] =
 	{"read", input_getcurrentinputstatus},
 	{NULL, NULL}
 };
-static const struct luaL_reg movielib [] =
+static const struct luaL_Reg movielib [] =
 {
 	{"active", movie_isactive},
 	{"recording", movie_isrecording},
@@ -3237,7 +3244,7 @@ static const struct luaL_reg movielib [] =
 	{"getreadonly", movie_getreadonly},
 	{NULL, NULL}
 };
-static const struct luaL_reg soundlib [] =
+static const struct luaL_Reg soundlib [] =
 {
 	{"clear", sound_clear},
 	{NULL, NULL}
@@ -3424,7 +3431,7 @@ void registerLibs(lua_State* L)
 			const CFuncInfo& cfi = cFuncInfo[i];
 			if(cfi.registry)
 			{
-				lua_getregistry(L);
+				lua_pushvalue(L, LUA_REGISTRYINDEX);
 				lua_getfield(L, -1, cfi.library);
 				lua_remove(L, -2);
 				lua_getfield(L, -1, cfi.name);
@@ -3432,13 +3439,15 @@ void registerLibs(lua_State* L)
 			}
 			else if(cfi.library)
 			{
-				lua_getfield(L, LUA_GLOBALSINDEX, cfi.library);
+				//lua_getfield(L, LUA_GLOBALSINDEX, cfi.library);
+				lua_getglobal(L, cfi.library);
 				lua_getfield(L, -1, cfi.name);
 				lua_remove(L, -2);
 			}
 			else
 			{
-				lua_getfield(L, LUA_GLOBALSINDEX, cfi.name);
+				//lua_getfield(L, LUA_GLOBALSINDEX, cfi.name);
+				lua_getglobal(L, cfi.name);
 			}
 
 			lua_CFunction func = lua_tocfunction(L, -1);
@@ -3447,7 +3456,8 @@ void registerLibs(lua_State* L)
 		}
 
 		// deal with some stragglers
-		lua_getfield(L, LUA_GLOBALSINDEX, "package");
+		//lua_getfield(L, LUA_GLOBALSINDEX, "package");
+		lua_getglobal(L, "package");
 		lua_getfield(L, -1, "loaders");
 		lua_remove(L, -2);
 		if(lua_istable(L, -1))
@@ -3542,7 +3552,7 @@ void RunLuaScriptFile(int uid, const char* filenameCStr)
 	{
 		std::string filename = info.nextFilename;
 
-		lua_State* L = lua_open();
+		lua_State* L = luaL_newstate();
 #ifndef USE_INFO_STACK
 		luaStateToContextMap[L] = &info;
 #endif
@@ -3772,7 +3782,8 @@ void CallExitFunction(int uid)
 				for(int i = 0; i < numPersistVars; i++)
 				{
 					const char* varName = info.persistVars[i].c_str();
-					lua_getfield(L, LUA_GLOBALSINDEX, varName);
+					//lua_getfield(L, LUA_GLOBALSINDEX, varName);
+					lua_getglobal(L, varName);
 					unsigned int varNameCRC = crc32(0, (const unsigned char*)varName, (int)strlen(varName));
 					newExitData.SaveRecordPartial(uid, varNameCRC, -1);
 					lua_pop(L,1);
@@ -4189,7 +4200,9 @@ void CallRegisteredLuaLoadFunctions(int savestateNumber, const LuaSaveData& save
 				// (e.g. the registered save function returned some huge tables)
 				// check the number of parameters the registered load function expects
 				// and don't bother loading the parameters it wouldn't receive anyway
-				int numParamsExpected = (L->top - 1)->value.gc->cl.l.p->numparams;
+				// TODO: Check this section
+				//int numParamsExpected = (L->top - 1)->value.gc->cl.l.p->numparams;
+				int numParamsExpected = lua_gettop(L);
 				if(numParamsExpected) numParamsExpected--; // minus one for the savestate number we always pass in
 
 				int prevGarbage = lua_gc(L, LUA_GCCOUNT, 0);

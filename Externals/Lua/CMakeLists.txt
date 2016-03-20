@@ -2,6 +2,9 @@ if(UNIX)
 	add_definitions(-DLUA_USE_LINUX)
 endif()
 
+# For compatability issues with Lua 5.3
+add_definitions(-DLUA_COMPAT_MODULE)
+
 set(SRCS lapi.c
 	 lauxlib.c
 	 lbaselib.c
